@@ -27,7 +27,9 @@ def _patched_parse_js(js: str):
     meta = _ffp.JsMetadata(alliances=alliances, airlines=airlines_meta)
 
     flights = _ffp.ResultList()
-    if payload[3][0] is None:
+    # ponytail: 해당 조건(예: 직항만 요청했는데 직항이 없는 노선)에 결과가 전혀
+    # 없으면 payload[3] 자체가 None으로 온다. 원본은 payload[3][0]만 확인해서 터진다.
+    if payload[3] is None or payload[3][0] is None:
         return flights
 
     for k in payload[3][0]:
@@ -136,6 +138,7 @@ def search(
         trip=trip,
         passengers=Passengers(adults=adults),
         currency=currency,
+        max_stops=0,  # 직항만. 경유가 섞이면 비행시간이 첫 구간만 표시돼 실제와 안 맞는다.
     )
 
     try:
